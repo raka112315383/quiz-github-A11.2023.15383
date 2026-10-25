@@ -6,6 +6,9 @@ use App\Http\Controllers\Admin\ObatController;
 use App\Http\Controllers\Admin\PasienController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Dokter\JadwalPeriksaController;
+use App\Http\Controllers\Dokter\PeriksaPasienController;
+use App\Http\Controllers\Dokter\RiwayatPasienController;
+use App\Http\Controllers\Pasien\PoliController as PasienPoliController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -50,7 +53,26 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->group(function () 
             ->count();
         return view('dokter.dashboard', compact('dokter', 'jadwals', 'totalPasienDiperiksa', 'pasienMenunggu'));
     })->name('dokter.dashboard');
+
     Route::resource('jadwal-periksa', JadwalPeriksaController::class);
+
+    Route::get('/periksa-pasien', [PeriksaPasienController::class, 'index'])
+        ->name('periksa-pasien.index');
+
+    Route::post('/periksa-pasien', [PeriksaPasienController::class, 'store'])
+        ->name('periksa-pasien.store');
+
+    Route::get('/periksa-pasien/{id?}', [PeriksaPasienController::class, 'create'])
+        ->name('periksa-pasien.create');
+
+    Route::get('/riwayat-pasien', [RiwayatPasienController::class, 'index'])
+        ->name('riwayat-pasien.index');
+
+    Route::get('/riwayat-pasien/{id}', [RiwayatPasienController::class, 'detail'])
+        ->name('riwayat-pasien.detail');
+
+    Route::get('/riwayat-pasien/{id}/show', [RiwayatPasienController::class, 'show'])
+        ->name('riwayat-pasien.show');
 });
 
 // Pasien Routes
@@ -65,4 +87,9 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
         $totalKunjungan = \App\Models\DaftarPoli::where('id_pasien', $pasien->id)->count();
         return view('pasien.dashboard', compact('pasien', 'daftarPolis', 'totalKunjungan'));
     })->name('pasien.dashboard');
+
+    Route::get('/daftar', [PasienPoliController::class, 'get'])->name('pasien.daftar');
+
+    Route::post('/daftar', [PasienPoliController::class, 'submit'])
+        ->name('pasien.daftar.submit');
 });
