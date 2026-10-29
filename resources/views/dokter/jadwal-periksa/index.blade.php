@@ -9,12 +9,19 @@
             <p class="text-sm text-slate-500 mt-1">Kelola jadwal praktek pemeriksaan pasien Anda</p>
         </div>
 
-        <a href="{{ route('jadwal-periksa.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 
-                  bg-primary hover:bg-primary/90 
-                  text-white rounded-xl text-sm font-semibold transition shadow-sm">
-            <i class="fas fa-plus text-xs"></i>
-            Tambah Jadwal
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('jadwal-periksa.export') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 
+                      text-white rounded-xl text-sm font-semibold transition shadow-sm">
+                <i class="fas fa-file-excel text-sm"></i>
+                Export Excel
+            </a>
+            <a href="{{ route('jadwal-periksa.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 
+                      bg-primary hover:bg-primary/90 
+                      text-white rounded-xl text-sm font-semibold transition shadow-sm">
+                <i class="fas fa-plus text-xs"></i>
+                Tambah Jadwal
+            </a>
+        </div>
     </div>
 
     {{-- Card Table --}}

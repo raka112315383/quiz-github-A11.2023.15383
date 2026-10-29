@@ -4,11 +4,39 @@ namespace App\Http\Controllers\Dokter;
 
 use App\Http\Controllers\Controller;
 use App\Models\JadwalPeriksa;
+use App\Services\ExcelExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class JadwalPeriksaController extends Controller
 {
+    /**
+     * Export jadwal periksa to Excel.
+     */
+    public function exportExcel()
+    {
+        $jadwals = JadwalPeriksa::with(['dokter.poli'])
+            ->where('id_dokter', Auth::id())
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $headers = ['No', 'Hari', 'Jam Mulai', 'Jam Selesai', 'Dokter', 'Poli'];
+        $data = [];
+
+        foreach ($jadwals as $index => $jadwal) {
+            $data[] = [
+                $index + 1,
+                $jadwal->hari,
+                $jadwal->jam_mulai,
+                $jadwal->jam_selesai,
+                $jadwal->dokter->nama ?? (Auth::user()->nama ?? '-'),
+                $jadwal->dokter->poli->nama_poli ?? '-',
+            ];
+        }
+
+        return ExcelExportService::download('jadwal-periksa-' . date('Y-m-d'), 'Jadwal Periksa Dokter', $headers, $data);
+    }
+
     /**
      * Display a listing of the resource.
      */

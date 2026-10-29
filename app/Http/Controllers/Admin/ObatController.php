@@ -33,8 +33,11 @@ class ObatController extends Controller
         $validated = $request->validate([
             'nama_obat' => 'required|string|max:255',
             'kemasan' => 'required|string|max:35',
+            'stok' => 'nullable|integer|min:0',
             'harga' => 'required|numeric|min:0',
         ]);
+
+        $validated['stok'] = $validated['stok'] ?? 0;
 
         Obat::create($validated);
 
@@ -68,8 +71,11 @@ class ObatController extends Controller
         $validated = $request->validate([
             'nama_obat' => 'required|string|max:255',
             'kemasan' => 'required|string|max:35',
+            'stok' => 'nullable|integer|min:0',
             'harga' => 'required|numeric|min:0',
         ]);
+
+        $validated['stok'] = $validated['stok'] ?? 0;
 
         $obat->update($validated);
 
@@ -90,5 +96,27 @@ class ObatController extends Controller
             ->with('success', 'Data obat berhasil dihapus')
             ->with('message', 'Data obat berhasil dihapus')
             ->with('type', 'success');
+    }
+
+    /**
+     * Export data obat ke format Excel (.xls), termasuk kolom stok dan harga.
+     */
+    public function exportExcel()
+    {
+        $obats = Obat::all();
+        $headers = ['No', 'Nama Obat', 'Kemasan', 'Stok', 'Harga'];
+        $rows = [];
+
+        foreach ($obats as $index => $o) {
+            $rows[] = [
+                $index + 1,
+                $o->nama_obat,
+                $o->kemasan ?? '-',
+                $o->stok ?? 0,
+                'Rp ' . number_format($o->harga, 0, ',', '.'),
+            ];
+        }
+
+        return \App\Services\ExcelExportService::download('data-obat', 'Data Obat Poliklinik', $headers, $rows);
     }
 }

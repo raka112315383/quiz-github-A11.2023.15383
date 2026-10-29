@@ -58,6 +58,22 @@
                         @enderror
                     </div>
 
+                    {{-- Stok --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">
+                            Stok <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="stok" value="{{ old('stok', $obat->stok ?? 0) }}" min="0" step="1"
+                            placeholder="Contoh: 100" 
+                            class="w-full px-4 py-2.5 rounded-lg border-2 border-slate-300 
+                                   focus:border-primary focus:outline-none transition
+                                   @error('stok') border-red-500 @enderror"
+                            required>
+                        @error('stok')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- Harga --}}
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">

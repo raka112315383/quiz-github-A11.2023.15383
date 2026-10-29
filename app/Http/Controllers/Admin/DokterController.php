@@ -104,4 +104,28 @@ class DokterController extends Controller
             ->with('message', 'Data Dokter Berhasil dihapus')
             ->with('type', 'success');
     }
+
+    /**
+     * Export data dokter ke format Excel (.xls).
+     */
+    public function exportExcel()
+    {
+        $dokters = User::where('role', 'dokter')->with('poli')->get();
+        $headers = ['No', 'Nama Dokter', 'Email', 'No. KTP', 'No. HP', 'Poli', 'Alamat'];
+        $rows = [];
+
+        foreach ($dokters as $index => $d) {
+            $rows[] = [
+                $index + 1,
+                $d->nama,
+                $d->email,
+                $d->no_ktp ?? '-',
+                $d->no_hp ?? '-',
+                $d->poli->nama_poli ?? '-',
+                $d->alamat ?? '-',
+            ];
+        }
+
+        return \App\Services\ExcelExportService::download('data-dokter', 'Data Dokter Poliklinik', $headers, $rows);
+    }
 }

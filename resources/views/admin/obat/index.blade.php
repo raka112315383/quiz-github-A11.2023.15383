@@ -9,12 +9,19 @@
             <p class="text-sm text-slate-500 mt-1">Kelola daftar obat dan harga poliklinik</p>
         </div>
 
-        <a href="{{ route('obat.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 
-                  bg-primary hover:bg-primary/90 
-                  text-white rounded-xl text-sm font-semibold transition shadow-sm">
-            <i class="fas fa-plus text-xs"></i>
-            Tambah Obat
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('obat.export') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 
+                      text-white rounded-xl text-sm font-semibold transition shadow-sm">
+                <i class="fas fa-file-excel text-sm"></i>
+                Export Excel
+            </a>
+            <a href="{{ route('obat.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 
+                      bg-primary hover:bg-primary/90 
+                      text-white rounded-xl text-sm font-semibold transition shadow-sm">
+                <i class="fas fa-plus text-xs"></i>
+                Tambah Obat
+            </a>
+        </div>
     </div>
 
     {{-- Card Table --}}
@@ -30,6 +37,7 @@
                             <th class="px-6 py-4">No.</th>
                             <th class="px-6 py-4">Nama Obat</th>
                             <th class="px-6 py-4">Kemasan</th>
+                            <th class="px-6 py-4">Stok</th>
                             <th class="px-6 py-4">Harga</th>
                             <th class="px-6 py-4 text-right">Aksi</th>
                         </tr>
@@ -52,6 +60,12 @@
                             <td class="px-6 py-4">
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 border border-indigo-100">
                                     {{ $obat->kemasan ?? '-' }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-1 rounded-md text-xs font-semibold {{ ($obat->stok ?? 0) > 10 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : (($obat->stok ?? 0) > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200') }}">
+                                    {{ number_format($obat->stok ?? 0, 0, ',', '.') }}
                                 </span>
                             </td>
 
@@ -90,7 +104,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-16 text-slate-400">
+                            <td colspan="6" class="text-center py-16 text-slate-400">
                                 <i class="fas fa-pills text-4xl mb-3 block text-slate-300"></i>
                                 Belum ada data obat
                             </td>

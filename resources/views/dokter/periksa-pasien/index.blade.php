@@ -76,12 +76,24 @@
                                     Edit Periksa
                                 </a>
                                 @else
-                                <a href="{{ route('periksa-pasien.create', $daftar->id) }}"
-                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm"
-                                    style="background-color: #2563eb !important; color: #ffffff !important;">
-                                    <i class="fas fa-stethoscope text-xs"></i>
-                                    Periksa
-                                </a>
+                                <div class="inline-flex items-center gap-2">
+                                    <button type="button"
+                                        onclick="panggilPasien({{ $daftar->id }}, {{ $daftar->no_antrian }}, '{{ addslashes($daftar->pasien->nama ?? 'Pasien') }}')"
+                                        id="btn-panggil-{{ $daftar->id }}"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition shadow-sm"
+                                        style="background-color: #059669 !important; color: #ffffff !important;"
+                                        title="Panggil pasien real-time via WebSocket Reverb">
+                                        <i class="fas fa-bullhorn text-xs"></i>
+                                        Panggil
+                                    </button>
+
+                                    <a href="{{ route('periksa-pasien.create', $daftar->id) }}"
+                                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm"
+                                        style="background-color: #2563eb !important; color: #ffffff !important;">
+                                        <i class="fas fa-stethoscope text-xs"></i>
+                                        Periksa
+                                    </a>
+                                </div>
                                 @endif
                             </td>
 
@@ -102,5 +114,46 @@
 
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        function panggilPasien(id, noAntrian, namaPasien) {
+            const btn = document.getElementById(`btn-panggil-${id}`);
+            const originalContent = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Memanggil...';
+                btn.disabled = true;
+            }
+
+            fetch(`/dokter/periksa-pasien/${id}/panggil`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check text-xs"></i> Dipanggil!';
+                    btn.style.setProperty('background-color', '#047857', 'important');
+                    setTimeout(() => {
+                        btn.innerHTML = originalContent;
+                        btn.disabled = false;
+                        btn.style.setProperty('background-color', '#059669', 'important');
+                    }, 3000);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                if (btn) {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }
+            });
+        }
+    </script>
+    @endpush
 
 </x-layouts.app>

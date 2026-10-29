@@ -103,4 +103,28 @@ class PasienController extends Controller
             ->with('message', 'Data Pasien berhasil dihapus')
             ->with('type', 'success');
     }
+
+    /**
+     * Export data pasien ke format Excel (.xls).
+     */
+    public function exportExcel()
+    {
+        $pasiens = User::where('role', 'pasien')->latest()->get();
+        $headers = ['No', 'Nama Pasien', 'No. RM', 'Email', 'No. KTP', 'No. HP', 'Alamat'];
+        $rows = [];
+
+        foreach ($pasiens as $index => $p) {
+            $rows[] = [
+                $index + 1,
+                $p->nama,
+                $p->no_rm ?? '-',
+                $p->email,
+                $p->no_ktp ?? '-',
+                $p->no_hp ?? '-',
+                $p->alamat ?? '-',
+            ];
+        }
+
+        return \App\Services\ExcelExportService::download('data-pasien', 'Data Pasien Poliklinik', $headers, $rows);
+    }
 }

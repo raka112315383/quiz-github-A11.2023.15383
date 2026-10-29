@@ -8,6 +8,12 @@
             </h2>
             <p class="text-sm text-slate-500 mt-1">Daftar riwayat pemeriksaan pasien yang pernah Anda tangani</p>
         </div>
+
+        <a href="{{ route('riwayat-pasien.export') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 
+                  text-white rounded-xl text-sm font-semibold transition shadow-sm">
+            <i class="fas fa-file-excel text-sm"></i>
+            Export Excel
+        </a>
     </div>
 
     {{-- Alert --}}
