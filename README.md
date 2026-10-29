@@ -1,59 +1,115 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Informasi Poliklinik (Bengkel Koding)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Tugas / Quiz Pemrograman Web - Bengkel Koding**  
+> **NIM**: A11.2023.15383  
+> **Repository**: [quiz-github-A11.2023.15383](https://github.com/raka112315383/quiz-github-A11.2023.15383)
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📌 Ringkasan Pembaruan & Fitur-Fitur Baru
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Berikut adalah daftar fitur baru dan pembaruan sistem yang telah diimplementasikan pada aplikasi Poliklinik ini:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| No | Fitur | Deskripsi & Komponen Utama | Aktor / Role |
+|---|---|---|---|
+| 1 | **Profil & Ganti Password** | Halaman kelola profil pengguna dan form ubah kata sandi dengan validasi password lama (`UpdatePasswordRequest`). | Semua Role (Admin, Dokter, Pasien) |
+| 2 | **Sistem Pembayaran Pasien & Kasir** | Rincian total tagihan (biaya jasa + total obat), upload bukti transfer/QRIS, serta verifikasi pembayaran oleh kasir/admin. | Pasien & Admin |
+| 3 | **Notifikasi Sistem & Real-time** | Dropdown lonceng notifikasi di header, badge count belum dibaca, halaman daftar notifikasi, serta event broadcast real-time (`AntrianUpdatedEvent`). | Admin & Pasien |
+| 4 | **Antrean Pasien & Riwayat Pendaftaran** | Dashboard pemantauan nomor antrean langsung, estimasi antrean saat ini, dan riwayat pendaftaran pemeriksaan pasien. | Pasien |
+| 5 | **Pengelolaan Stok Obat & Export Data** | Penambahan stok pada data obat, pengurangan otomatis saat pemeriksaan, serta fitur export laporan ke Excel (`ExcelExportService`). | Admin & Dokter |
+| 6 | **Automated Feature Testing** | Rangkaian unit & feature tests menggunakan PHPUnit / Pest untuk menjamin kehandalan seluruh fitur baru. | Developer / QA |
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🚀 Rincian Implementasi Fitur
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. 👤 Profil dan Ganti Password
+- **Controller**: `app/Http/Controllers/ProfileController.php`
+- **Request Validation**: `app/Http/Requests/UpdatePasswordRequest.php`
+- **Tampilan (View)**: `resources/views/profile/index.blade.php`
+- **Fitur**: Memperbarui informasi akun (nama, email, no HP, alamat) dan fitur ubah password terenkripsi Hash (Bcrypt).
 
-## Laravel Sponsors
+### 2. 💳 Pembayaran & Tagihan Periksa
+- **Migration**: `database/migrations/2026_10_27_000001_add_pembayaran_to_periksa_table.php`
+- **Controllers**:
+  - `app/Http/Controllers/Pasien/PembayaranController.php` (Unggah bukti bayar, lihat tagihan)
+  - `app/Http/Controllers/Admin/PembayaranController.php` (Verifikasi & konfirmasi pembayaran)
+- **Tampilan (View)**:
+  - `resources/views/pasien/pembayaran/index.blade.php`
+  - `resources/views/admin/pembayaran/index.blade.php`
+- **Notifications**:
+  - `app/Notifications/BuktiPembayaranDiunggahNotification.php`
+  - `app/Notifications/PembayaranDiverifikasiNotification.php`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 3. 🔔 Notifikasi Sistem (Database & Broadcast)
+- **Migration**: `database/migrations/2026_10_27_101418_create_notifications_table.php`
+- **Controller**: `app/Http/Controllers/NotificationController.php`
+- **Tampilan (View)**: `resources/views/notifikasi/index.blade.php` & partials header `header.blade.php`
+- **Broadcasting & Websocket**:
+  - `config/broadcasting.php`, `config/reverb.php`
+  - `routes/channels.php`, `resources/js/echo.js`
+  - `app/Events/AntrianUpdatedEvent.php`
 
-### Premium Partners
+### 4. 🏥 Antrean & Riwayat Pendaftaran Pasien
+- **Controllers**:
+  - `app/Http/Controllers/Pasien/DashboardController.php`
+  - `app/Http/Controllers/Pasien/RiwayatPendaftaranController.php`
+- **Tampilan (View)**:
+  - `resources/views/pasien/dashboard.blade.php` (Card antrean aktif, status pendaftaran)
+  - `resources/views/pasien/riwayat/index.blade.php` & `detail.blade.php`
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 5. 💊 Pengelolaan Stok Obat & Export Excel
+- **Migration**: `database/migrations/2026_10_27_000002_add_stok_to_obat_table.php`
+- **Service**: `app/Services/ExcelExportService.php`
+- **Controllers**:
+  - `app/Http/Controllers/Admin/ObatController.php`
+  - `app/Http/Controllers/Dokter/PeriksaPasienController.php`
+- **Tampilan (View)**: `resources/views/admin/obat/`
 
-## Contributing
+### 6. 🧪 Automated Testing (Feature Tests)
+File pengujian otomatis tersedia di folder `tests/Feature/`:
+- `tests/Feature/PasswordChangeTest.php` — Pengujian ubah password & validasi
+- `tests/Feature/PembayaranTest.php` — Pengujian alur pembayaran dan verifikasi kasir
+- `tests/Feature/NotifikasiTest.php` — Pengujian pembuatan dan status baca notifikasi
+- `tests/Feature/DashboardPasienAntrianTest.php` — Pengujian tampilan antrean pasien
+- `tests/Feature/RiwayatPendaftaranPasienTest.php` — Pengujian daftar riwayat pasien
+- `tests/Feature/ExportExcelTest.php` — Pengujian ekspor data ke Excel
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🛠️ Panduan Instalasi & Menjalankan Proyek
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/raka112315383/quiz-github-A11.2023.15383.git
+   cd poliklinik-app
+   ```
 
-## Security Vulnerabilities
+2. **Install Dependensi PHP & JavaScript**:
+   ```bash
+   composer install
+   npm install
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Konfigurasi Environment**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   *Sesuaikan konfigurasi database `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` di `.env`.*
 
-## License
+4. **Jalankan Migrasi & Seeder**:
+   ```bash
+   php artisan migrate --seed
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. **Jalankan Server Lokal**:
+   ```bash
+   npm run dev
+   php artisan serve
+   ```
+
+6. **Menjalankan Pengujian Otomatis (Tests)**:
+   ```bash
+   php artisan test
+   ```
