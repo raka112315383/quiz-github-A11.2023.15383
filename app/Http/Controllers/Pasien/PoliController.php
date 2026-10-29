@@ -95,17 +95,21 @@ class PoliController extends Controller
                 ->with('type', 'error');
         }
 
-        $poli = Poli::find($request->id_poli);
-        \App\Events\AntrianUpdatedEvent::dispatch(
-            $request->id_poli,
-            $poli?->nama_poli ?? 'Poli',
-            $request->id_jadwal,
-            $daftarBaru->no_antrian,
-            $user->nama ?? 'Pasien',
-            null,
-            'didaftar',
-            $pasienId
-        );
+        try {
+            $poli = Poli::find($request->id_poli);
+            \App\Events\AntrianUpdatedEvent::dispatch(
+                $request->id_poli,
+                $poli?->nama_poli ?? 'Poli',
+                $request->id_jadwal,
+                $daftarBaru->no_antrian,
+                $user->nama ?? 'Pasien',
+                null,
+                'didaftar',
+                $pasienId
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcast AntrianUpdatedEvent failed (Reverb offline): ' . $e->getMessage());
+        }
 
         return redirect()
             ->route('pasien.dashboard')

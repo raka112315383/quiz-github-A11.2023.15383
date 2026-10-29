@@ -78,16 +78,20 @@ class PeriksaPasienController extends Controller
                 ->first();
 
             // Broadcast real-time update via Laravel Reverb
-            \App\Events\AntrianUpdatedEvent::dispatch(
-                $idPoli,
-                $namaPoli,
-                $daftarPoli->id_jadwal,
-                $nextAntrian?->no_antrian,
-                $nextAntrian?->pasien->nama,
-                $daftarPoli->jadwalPeriksa->dokter->nama ?? 'Dokter',
-                'selesai',
-                $daftarPoli->id_pasien
-            );
+            try {
+                \App\Events\AntrianUpdatedEvent::dispatch(
+                    $idPoli,
+                    $namaPoli,
+                    $daftarPoli->id_jadwal,
+                    $nextAntrian?->no_antrian,
+                    $nextAntrian?->pasien->nama,
+                    $daftarPoli->jadwalPeriksa->dokter->nama ?? 'Dokter',
+                    'selesai',
+                    $daftarPoli->id_pasien
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcast AntrianUpdatedEvent failed (Reverb offline): ' . $e->getMessage());
+            }
         }
 
         return redirect()
@@ -114,16 +118,20 @@ class PeriksaPasienController extends Controller
         cache()->put("jadwal_sedang_dipanggil_{$daftar->id_jadwal}", $daftar->no_antrian, now()->addHours(8));
 
         // Broadcast real-time event ke Laravel Reverb via WebSocket
-        \App\Events\AntrianUpdatedEvent::dispatch(
-            $idPoli,
-            $namaPoli,
-            $daftar->id_jadwal,
-            $daftar->no_antrian,
-            $daftar->pasien->nama ?? 'Pasien',
-            $daftar->jadwalPeriksa->dokter->nama ?? 'Dokter',
-            'dipanggil',
-            $daftar->id_pasien
-        );
+        try {
+            \App\Events\AntrianUpdatedEvent::dispatch(
+                $idPoli,
+                $namaPoli,
+                $daftar->id_jadwal,
+                $daftar->no_antrian,
+                $daftar->pasien->nama ?? 'Pasien',
+                $daftar->jadwalPeriksa->dokter->nama ?? 'Dokter',
+                'dipanggil',
+                $daftar->id_pasien
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcast AntrianUpdatedEvent failed (Reverb offline): ' . $e->getMessage());
+        }
 
         if (request()->wantsJson() || request()->ajax()) {
             return response()->json([
